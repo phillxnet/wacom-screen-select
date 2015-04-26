@@ -41,8 +41,10 @@ else
 	# LVDS1 connected 1366x768+0+312 (normal left inverted right x axis y axis) 309mm x 174mm
 	# VGA1 disconnected (normal left inverted right x axis y axis)
 	# HDMI1 connected 1920x1080+1366+0 (normal left inverted right x axis y axis) 509mm x 286mm
-
-	LINE=`xrandr -q --current | sed -n "s/^${SCREEN}"' connected \([0-9]\+\)x\([0-9]\+\)+.*/\1 \2/p'`
+	# but from nvidia proprietary we have:-
+	# LVDS-0 connected primary 1440x900+0+0 (normal left inverted right x axis y axis) 367mm x 230mm
+	# so we have a "primary" in there.
+	LINE=`xrandr -q --current | sed -n "s/^${SCREEN} connected"'.* \([0-9]\+\)x\([0-9]\+\)+.*/\1 \2/p'`
 	read WIDTH HEIGHT <<< "$LINE"
 fi
 
