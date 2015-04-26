@@ -4,13 +4,19 @@
 
 # Set this to your (stylus) device. Find it by running:
 # xsetwacom --list devices
-DEVICE='Wacom Graphire4 6x8 stylus'
+#DEVICE='Wacom Graphire4 6x8 stylus'
+DEVICE='Wacom Intuos3 6x8 stylus'
 
 # These numbers are specific for each device. Get them by running:
-# xsetwacom --set "Your device name here" ResetArea
+# xsetwacom --set "Your device name here" ResetArea./xsetwacom_my_preferences.sh LVDS-0
 # xsetwacom --get "Your device name here" Area
-AREAX=16704
-AREAY=12064
+AREAX=40640
+AREAY=30480
+
+# alter around if these are in the wrong order
+# only used with nvidia drivers (not the nouveau)
+# NVIDIA_MONITOR_NAMES=( HEAD-0 HEAD-1 HEAD-2 HEAT-3 )
+NVIDIA_MONITOR_NAMES=( HEAD-1 HEAD-0 HEAD-2 HEAT-3 )
 
 # END OF CONFIGURATION
 
@@ -19,13 +25,14 @@ NVIDIA="$(lsmod | sed -n '/^nvidia/p')"
 
 SCREEN="$1"
 
+CONNECTED_DISPLAYS=`xrandr -q --current | sed -n 's/^\([^ ]\+\) connected .*/\1/p'`
+
 if [ -z "$SCREEN" -o "$SCREEN" = "--help" -o "$SCREEN" = "-help" -o "$SCREEN" = "-h" ]; then
 	echo 'This script configures a Wacom tablet to one specific monitor, or to '
 	echo 'the entire desktop. In addition, it also reduces the tablet area in '
 	echo 'order to keep the same aspect ratio as the monitor.'
 	echo
 	echo 'How to run this script? Run one of the following lines:'
-	CONNECTED_DISPLAYS=`xrandr -q --current | sed -n 's/^\([^ ]\+\) connected .*/\1/p'`
 	for d in desktop $CONNECTED_DISPLAYS; do
 		echo "  $0 $d"
 	done
@@ -72,7 +79,29 @@ else
 fi
 
 xsetwacom --set "$DEVICE" Area 0 0 "$NEWAREAX" "$NEWAREAY"
-xsetwacom --set "$DEVICE" MapToOutput "$SCREEN"
+
+if [ "$NVIDIA" == "" ]; then
+	# we are not nvidia proprietary so using MapToOutput $SCREEN
+	echo "we are non nvidia so MapToOutput $SCREEN"
+	xsetwacom --set "$DEVICE" MapToOutput $SCREEN
+else
+	# we are nvidia proprietary
+	if [ "$SCREEN" == "desktop" ]; then
+		echo "nvidia driver MapToOutput desktop"
+		xsetwacom --set "$DEVICE" MapToOutput desktop
+	else
+		#map to one of the HEAD-# entries in NVIDIA_MONITOR_NAMES
+		COUNT=0
+		for d in $CONNECTED_DISPLAYS; do
+			if [ "$SCREEN" == "$d" ]; then
+				#we have found our match so use it
+				echo "We are Nvidia driver so MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}"
+				xsetwacom --set "$DEVICE" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
+			fi
+			let "COUNT++"
+		done
+	fi
+fi
 
 
 # $ xsetwacom --list devices
