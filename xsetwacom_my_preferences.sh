@@ -14,6 +14,8 @@ AREAY=12064
 
 # END OF CONFIGURATION
 
+NVIDIA="$(lsmod | sed -n '/^nvidia/p')"
+# If non empty then we are running nvidia proprietary module
 
 SCREEN="$1"
 
