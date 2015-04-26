@@ -36,6 +36,8 @@ if [ "$SCREEN" = "desktop" ]; then
 
 	LINE=`xrandr -q --current | sed -n 's/^Screen 0:.*, current \([0-9]\+\) x \([0-9]\+\),.*/\1 \2/p'`
 	read WIDTH HEIGHT <<< "$LINE"
+	echo "The desktop Width was found to be $WIDTH"
+	echo "The desktop Height was found to be $HEIGHT"
 else
 	# Sample xrandr lines:
 	# LVDS1 connected 1366x768+0+312 (normal left inverted right x axis y axis) 309mm x 174mm
@@ -46,6 +48,8 @@ else
 	# so we have a "primary" in there.
 	LINE=`xrandr -q --current | sed -n "s/^${SCREEN} connected"'.* \([0-9]\+\)x\([0-9]\+\)+.*/\1 \2/p'`
 	read WIDTH HEIGHT <<< "$LINE"
+	echo "The monitor Width was found to be $WIDTH"
+	echo "The monitor Height was found to be $HEIGHT"
 fi
 
 if [ -z "$WIDTH" -o -z "$HEIGHT" ]; then
