@@ -66,9 +66,9 @@ SCREEN="$1"
 CONNECTED_DISPLAYS=`xrandr -q --current | sed -n 's/^\([^ ]\+\) connected .*/\1/p'`
 
 if [ -z "$SCREEN" -o "$SCREEN" = "--help" -o "$SCREEN" = "-help" -o "$SCREEN" = "-h" ]; then
-	echo 'This script configures a Wacom tablet to one specific monitor, or to '
+	echo 'This script configures a Wacom tablet to a specified monitor, or to '
 	echo 'the entire desktop. In addition, it also reduces the tablet area in '
-	echo 'order to keep the same aspect ratio as the monitor.'
+	echo 'order to keep the same aspect ratio as the monitor or whole desktop.'
 	echo
 	echo 'How to run this script? Run one of the following lines:'
 	for d in desktop $CONNECTED_DISPLAYS; do
