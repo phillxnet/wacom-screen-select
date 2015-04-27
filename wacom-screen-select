@@ -20,7 +20,7 @@ fi
 
 
 # These numbers are specific for each device. Get them by running:
-# xsetwacom --set "Your device name here" ResetArea./xsetwacom_my_preferences.sh LVDS-0
+# xsetwacom --set "Your device name here" ResetArea
 # xsetwacom --get "Your device name here" Area
 AREAX=40640
 AREAY=30480
