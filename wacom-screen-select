@@ -8,19 +8,28 @@
 #DEVICE='Wacom Intuos3 6x8 stylus'
 
 # Experimental auto config of DEVICE name:-
-STYLUS=$(xsetwacom --list | grep STYLUS | cut -d ' ' -f 1-4 | sed -e 's/[[:space:]]*$//')
 # N.B some tablets have an empty 4th column in their name
 # ie "Wacom Volito stylus " hence the trailing space removal in above
 # with the sed -e 's/[[:space:]]*$//'
-DEVICE=$STYLUS
+STYLUS=$(xsetwacom --list | grep STYLUS | cut -d ' ' -f 1-4 | sed -e 's/[[:space:]]*$//')
 
-if [ "$DEVICE" == "" ]; then
+# Get the ERASER (other end of STYLUS) device name
+ERASER=$(xsetwacom --list | grep ERASER | cut -d ' ' -f 1-4 | sed -e 's/[[:space:]]*$//')
+
+# Get the CURSOR (mouse) device name
+# N.B. this is usually read and auto configured in relative mode so irrelevant
+# CURSOR=$(xsetwacom --list | grep CURSOR | cut -d ' ' -f 1-4 | sed -e 's/[[:space:]]*$//')
+
+# set the DEVICE to the STYLUS (the pen)
+# DEVICE=$STYLUS
+
+echo
+if [ "$STYLUS" == "" ]; then
 	echo "No Wacom device found; Aborting."
 	exit 1
 else
 	echo "The STYLUS device was found to be $STYLUS"
 fi
-
 
 # These numbers are specific for each device. Get them by running:
 # xsetwacom --set "Your device name here" ResetArea
@@ -30,8 +39,8 @@ fi
 
 # Experimental auto config of STYLUS tablet resolution
 # first to reset the area to it's default and then ask what it is
-xsetwacom --set "$DEVICE" ResetArea
-STYLUS_AREA=$(xsetwacom --get "$DEVICE" Area)
+xsetwacom --set "$STYLUS" ResetArea
+STYLUS_AREA=$(xsetwacom --get "$STYLUS" Area)
 # then retrieve from column 3 and 4 the X and Y dimensions
 # example output of eg:-
 # xsetwacom --get "Wacom Intuos3 6x8 stylus" Area
@@ -47,6 +56,7 @@ echo "Y tablet resolution found to be $AREAY"
 NVIDIA_MONITOR_NAMES=( HEAD-1 HEAD-0 HEAD-2 HEAD-3 )
 
 # END OF CONFIGURATION
+
 
 NVIDIA="$(lsmod | sed -n '/^nvidia/p')"
 # If non empty then we are running nvidia proprietary module
@@ -106,17 +116,21 @@ else
 	NEWAREAY="$AREAY"
 fi
 
-xsetwacom --set "$DEVICE" Area 0 0 "$NEWAREAX" "$NEWAREAY"
+# xsetwacom --set "$DEVICE" Area 0 0 "$NEWAREAX" "$NEWAREAY"
+xsetwacom --set "$STYLUS" Area 0 0 "$NEWAREAX" "$NEWAREAY"
+xsetwacom --set "$ERASER" Area 0 0 "$NEWAREAX" "$NEWAREAY"
 
 if [ "$NVIDIA" == "" ]; then
 	# we are not nvidia proprietary so using MapToOutput $SCREEN
 	echo "we are non nvidia so MapToOutput $SCREEN"
-	xsetwacom --set "$DEVICE" MapToOutput $SCREEN
+	xsetwacom --set "$STYLUS" MapToOutput $SCREEN
+	xsetwacom --set "$ERASER" MapToOutput $SCREEN
 else
 	# we are nvidia proprietary
 	if [ "$SCREEN" == "desktop" ]; then
 		echo "nvidia driver MapToOutput desktop"
-		xsetwacom --set "$DEVICE" MapToOutput desktop
+		xsetwacom --set "$STYLUS" MapToOutput desktop
+		xsetwacom --set "$ERASER" MapToOutput desktop
 	else
 		#map to one of the HEAD-# entries in NVIDIA_MONITOR_NAMES
 		COUNT=0
@@ -124,7 +138,8 @@ else
 			if [ "$SCREEN" == "$d" ]; then
 				#we have found our match so use it
 				echo "We are Nvidia driver so MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}"
-				xsetwacom --set "$DEVICE" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
+				xsetwacom --set "$STYLUS" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
+				xsetwacom --set "$ERASER" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
 			fi
 			let "COUNT++"
 		done
