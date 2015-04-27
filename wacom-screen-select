@@ -8,7 +8,10 @@
 #DEVICE='Wacom Intuos3 6x8 stylus'
 
 # Experimental auto config of DEVICE name:-
-STYLUS=$(xsetwacom --list | grep STYLUS | cut -d ' ' -f 1-4)
+STYLUS=$(xsetwacom --list | grep STYLUS | cut -d ' ' -f 1-4 | sed -e 's/[[:space:]]*$//')
+# N.B some tablets have an empty 4th column in their name
+# ie "Wacom Volito stylus " hence the trailing space removal in above
+# with the sed -e 's/[[:space:]]*$//'
 DEVICE=$STYLUS
 
 if [ "$DEVICE" == "" ]; then
@@ -22,12 +25,25 @@ fi
 # These numbers are specific for each device. Get them by running:
 # xsetwacom --set "Your device name here" ResetArea
 # xsetwacom --get "Your device name here" Area
-AREAX=40640
-AREAY=30480
+#AREAX=40640
+#AREAY=30480
+
+# Experimental auto config of STYLUS tablet resolution
+# first to reset the area to it's default and then ask what it is
+xsetwacom --set "$DEVICE" ResetArea
+STYLUS_AREA=$(xsetwacom --get "$DEVICE" Area)
+# then retrieve from column 3 and 4 the X and Y dimensions
+# example output of eg:-
+# xsetwacom --get "Wacom Intuos3 6x8 stylus" Area
+# 0 0 40640 30480
+AREAX=$(echo $STYLUS_AREA | cut -d ' ' -f 3)
+echo "X tablet resolution found to be $AREAX"
+AREAY=$(echo $STYLUS_AREA | cut -d ' ' -f 4)
+echo "Y tablet resolution found to be $AREAY"
 
 # alter around if these are in the wrong order
-# only used with nvidia drivers (not the nouveau)
-# NVIDIA_MONITOR_NAMES=( HEAD-0 HEAD-1 HEAD-2 HEAT-3 )
+# Only used with nvidia drivers (not the nouveau)
+# NVIDIA_MONITOR_NAMES=( HEAD-0 HEAD-1 HEAD-2 HEAD-3 )
 NVIDIA_MONITOR_NAMES=( HEAD-1 HEAD-0 HEAD-2 HEAD-3 )
 
 # END OF CONFIGURATION
