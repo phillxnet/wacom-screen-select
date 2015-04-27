@@ -110,6 +110,17 @@ fi
 # Wacom Graphire4 6x8 cursor      	id: 11	type: CURSOR
 # Wacom Graphire4 6x8 pad         	id: 12	type: PAD
 
+# $ xsetwacom --list
+# Wacom Volito stylus             	id: 17	type: STYLUS    
+# Wacom Volito eraser             	id: 18	type: ERASER    
+# Wacom Volito cursor             	id: 19	type: CURSOR    
+
+# $ xsetwacom --list
+# Wacom Intuos3 6x8 Pad pad       	id: 17	type: PAD       
+# Wacom Intuos3 6x8 stylus        	id: 18	type: STYLUS    
+# Wacom Intuos3 6x8 eraser        	id: 19	type: ERASER    
+# Wacom Intuos3 6x8 cursor        	id: 20	type: CURSOR 
+
 # Button mappings only apply to the "pad" device.
 # The wheel on Graphire4 acts as mouse buttons 4 and 5 (as a mouse wheel)
 # The buttons on Graphire4 act as mouse buttons 8 and 9
