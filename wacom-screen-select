@@ -5,7 +5,19 @@
 # Set this to your (stylus) device. Find it by running:
 # xsetwacom --list devices
 #DEVICE='Wacom Graphire4 6x8 stylus'
-DEVICE='Wacom Intuos3 6x8 stylus'
+#DEVICE='Wacom Intuos3 6x8 stylus'
+
+# Experimental auto config of DEVICE name:-
+STYLUS=$(xsetwacom --list | grep STYLUS | cut -d ' ' -f 1-4)
+DEVICE=$STYLUS
+
+if [ "$DEVICE" == "" ]; then
+	echo "No Wacom device found; Aborting."
+	exit 1
+else
+	echo "The STYLUS device was found to be $STYLUS"
+fi
+
 
 # These numbers are specific for each device. Get them by running:
 # xsetwacom --set "Your device name here" ResetArea./xsetwacom_my_preferences.sh LVDS-0
@@ -16,7 +28,7 @@ AREAY=30480
 # alter around if these are in the wrong order
 # only used with nvidia drivers (not the nouveau)
 # NVIDIA_MONITOR_NAMES=( HEAD-0 HEAD-1 HEAD-2 HEAT-3 )
-NVIDIA_MONITOR_NAMES=( HEAD-1 HEAD-0 HEAD-2 HEAT-3 )
+NVIDIA_MONITOR_NAMES=( HEAD-1 HEAD-0 HEAD-2 HEAD-3 )
 
 # END OF CONFIGURATION
 
