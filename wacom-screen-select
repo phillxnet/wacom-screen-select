@@ -24,7 +24,7 @@ ERASER=$(xsetwacom --list | grep ERASER | cut -d ' ' -f 1-4 | sed -e 's/[[:space
 # DEVICE=$STYLUS
 
 if [ "$STYLUS" == "" ]; then
-	echo "No Wacom device found; Aborting."
+	echo "No Wacom device found: aborting"
 	exit 1
 fi
 
@@ -45,7 +45,8 @@ STYLUS_AREA=$(xsetwacom --get "$STYLUS" Area)
 AREAX=$(echo $STYLUS_AREA | cut -d ' ' -f 3)
 AREAY=$(echo $STYLUS_AREA | cut -d ' ' -f 4)
 
-echo "$STYLUS area = $AREAX x $AREAY"
+# uncomment to display / degug stylus read area
+#echo "$STYLUS area = $AREAX x $AREAY"
 
 # alter around if these are in the wrong order
 # Only used with nvidia drivers (not the nouveau)
@@ -63,11 +64,12 @@ SCREEN="$1"
 CONNECTED_DISPLAYS=`xrandr -q --current | sed -n 's/^\([^ ]\+\) connected .*/\1/p'`
 
 if [ -z "$SCREEN" -o "$SCREEN" = "--help" -o "$SCREEN" = "-help" -o "$SCREEN" = "-h" ]; then
-	echo 'This script configures a Wacom tablet to a specified monitor, or to '
-	echo 'the entire desktop. In addition, it also reduces the tablet area in '
-	echo 'order to keep the same aspect ratio as the monitor or whole desktop.'
 	echo
-	echo 'How to run this script? Run one of the following lines:'
+	echo "This script configures a Wacom tablet to a specified monitor, or to "
+	echo "the entire desktop. The Aspect ratio is preserved by reducing the"
+	echo "discovered $STYLUS working area."
+	echo
+	echo "How to run this script? Run one of the following lines:"
 	for d in desktop $CONNECTED_DISPLAYS; do
 		echo "  $0 $d"
 	done
