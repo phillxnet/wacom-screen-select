@@ -97,7 +97,8 @@ if [ -z "$WIDTH" -o -z "$HEIGHT" ]; then
 	echo "Aborting: output dimensions unavailable."
 	exit 1
 else
-	echo "Output area = $WIDTH x $HEIGHT"
+	#echo "Output area = $WIDTH x $HEIGHT"
+	OUTPUT_AREA="($WIDTH X $HEIGHT)"
 fi
 
 # New values respecint aspect ratio:
@@ -118,13 +119,13 @@ xsetwacom --set "$ERASER" Area 0 0 "$NEWAREAX" "$NEWAREAY"
 
 if [ "$NVIDIA" == "" ]; then
 	# we are not nvidia proprietary so using MapToOutput $SCREEN
-	echo "MapToOutput $SCREEN"
+	echo "MapToOutput $SCREEN $OUTPUT_AREA"
 	xsetwacom --set "$STYLUS" MapToOutput $SCREEN
 	xsetwacom --set "$ERASER" MapToOutput $SCREEN
 else
 	# we are nvidia proprietary
 	if [ "$SCREEN" == "desktop" ]; then
-		echo "Nvidia driver: MapToOutput desktop"
+		echo "Nvidia driver: MapToOutput desktop $OUTPUT_AREA"
 		xsetwacom --set "$STYLUS" MapToOutput desktop
 		xsetwacom --set "$ERASER" MapToOutput desktop
 	else
@@ -133,7 +134,7 @@ else
 		for d in $CONNECTED_DISPLAYS; do
 			if [ "$SCREEN" == "$d" ]; then
 				#we have found our match so use it
-				echo "Nvidia driver: MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}"
+				echo "Nvidia driver: MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]} $OUTPUT_AREA"
 				xsetwacom --set "$STYLUS" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
 				xsetwacom --set "$ERASER" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
 			fi
