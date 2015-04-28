@@ -23,12 +23,9 @@ ERASER=$(xsetwacom --list | grep ERASER | cut -d ' ' -f 1-4 | sed -e 's/[[:space
 # set the DEVICE to the STYLUS (the pen)
 # DEVICE=$STYLUS
 
-echo
 if [ "$STYLUS" == "" ]; then
 	echo "No Wacom device found; Aborting."
 	exit 1
-else
-	echo "The STYLUS device was found to be $STYLUS"
 fi
 
 # These numbers are specific for each device. Get them by running:
@@ -46,9 +43,9 @@ STYLUS_AREA=$(xsetwacom --get "$STYLUS" Area)
 # xsetwacom --get "Wacom Intuos3 6x8 stylus" Area
 # 0 0 40640 30480
 AREAX=$(echo $STYLUS_AREA | cut -d ' ' -f 3)
-echo "X tablet resolution found to be $AREAX"
 AREAY=$(echo $STYLUS_AREA | cut -d ' ' -f 4)
-echo "Y tablet resolution found to be $AREAY"
+
+echo "$STYLUS area = $AREAX x $AREAY"
 
 # alter around if these are in the wrong order
 # Only used with nvidia drivers (not the nouveau)
@@ -80,11 +77,8 @@ fi
 if [ "$SCREEN" = "desktop" ]; then
 	# Sample xrandr line:
 	# Screen 0: minimum 320 x 200, current 3286 x 1080, maximum 32767 x 32767
-
 	LINE=`xrandr -q --current | sed -n 's/^Screen 0:.*, current \([0-9]\+\) x \([0-9]\+\),.*/\1 \2/p'`
 	read WIDTH HEIGHT <<< "$LINE"
-	echo "The desktop Width was found to be $WIDTH"
-	echo "The desktop Height was found to be $HEIGHT"
 else
 	# Sample xrandr lines:
 	# LVDS1 connected 1366x768+0+312 (normal left inverted right x axis y axis) 309mm x 174mm
@@ -95,13 +89,13 @@ else
 	# so we have a "primary" in there.
 	LINE=`xrandr -q --current | sed -n "s/^${SCREEN} connected"'.* \([0-9]\+\)x\([0-9]\+\)+.*/\1 \2/p'`
 	read WIDTH HEIGHT <<< "$LINE"
-	echo "The monitor Width was found to be $WIDTH"
-	echo "The monitor Height was found to be $HEIGHT"
 fi
 
 if [ -z "$WIDTH" -o -z "$HEIGHT" ]; then
-	echo "Aborting."
+	echo "Aborting: output dimensions unavailable."
 	exit 1
+else
+	echo "Output area = $WIDTH x $HEIGHT"
 fi
 
 # New values respecint aspect ratio:
@@ -122,13 +116,13 @@ xsetwacom --set "$ERASER" Area 0 0 "$NEWAREAX" "$NEWAREAY"
 
 if [ "$NVIDIA" == "" ]; then
 	# we are not nvidia proprietary so using MapToOutput $SCREEN
-	echo "we are non nvidia so MapToOutput $SCREEN"
+	echo "MapToOutput $SCREEN"
 	xsetwacom --set "$STYLUS" MapToOutput $SCREEN
 	xsetwacom --set "$ERASER" MapToOutput $SCREEN
 else
 	# we are nvidia proprietary
 	if [ "$SCREEN" == "desktop" ]; then
-		echo "nvidia driver MapToOutput desktop"
+		echo "Nvidia driver: MapToOutput desktop"
 		xsetwacom --set "$STYLUS" MapToOutput desktop
 		xsetwacom --set "$ERASER" MapToOutput desktop
 	else
@@ -137,7 +131,7 @@ else
 		for d in $CONNECTED_DISPLAYS; do
 			if [ "$SCREEN" == "$d" ]; then
 				#we have found our match so use it
-				echo "We are Nvidia driver so MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}"
+				echo "Nvidia driver: MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}"
 				xsetwacom --set "$STYLUS" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
 				xsetwacom --set "$ERASER" MapToOutput ${NVIDIA_MONITOR_NAMES[$COUNT]}
 			fi
